@@ -339,18 +339,28 @@ public class RayTracer {
 
 		for(int x = offsetX; x < (offsetX + sizeX); x++) {
 			for(int y = offsetY; y < (offsetY + sizeY); y++) {
+		
+		pixelColor.setZero();
+		
+//		for(int i = 0; i < samples; i++){
+//			for(int j = 0; j < samples; j++){	
 
-				pixelColor.setZero();
+				double xSample = offsetX + (sizeX * sInv * x);
+				double ySample = offsetY + (sizeY * sInv * y);
+				
+//			}
 
 				// TODO#A7 Implement supersampling for antialiasing.
 				// Each pixel should have (samples*samples) subpixels.
+
+				
 				
 				Colord colorsito = new Colord(255,0,0);
 				pixelColor.set(colorsito);
 				
 				outImage.setPixelColor(pixelColor, x, y);
-
 			}
+
 		}
 	}
 	
