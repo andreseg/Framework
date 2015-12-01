@@ -345,11 +345,29 @@ public class RayTracer {
 				// TODO#A7 Implement supersampling for antialiasing.
 				// Each pixel should have (samples*samples) subpixels.
 				
-
+				Colord colorsito = new Colord(255,0,0);
+				pixelColor.set(colorsito);
 				
 				outImage.setPixelColor(pixelColor, x, y);
 
 			}
 		}
 	}
+	
+	/**
+	 * Check if int n is a square.
+	 * Return true if n = x^2, where x is an integer
+	 * else return fasle 
+	 * 
+	 **/
+	private static boolean isSquare(int n) {
+		double tempD = Math.sqrt((double)n);
+		int tempI = (int) tempD;
+		if (tempI == tempD){
+		return true;
+		} else {
+			return false;
+		}
+	}
+	
 }
