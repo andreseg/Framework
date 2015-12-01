@@ -1,6 +1,7 @@
 package cs4620.gl;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import cs4620.common.Cubemap;
 import cs4620.common.Material;
@@ -10,6 +11,8 @@ import cs4620.common.SceneCamera;
 import cs4620.common.SceneLight;
 import cs4620.common.SceneObject;
 import cs4620.common.Texture;
+import egl.math.Matrix3;
+import egl.math.Matrix4;
 import egl.math.Vector2;
 
 /**
@@ -31,7 +34,7 @@ public class RenderTreeBuilder {
 	 */
 	public static RenderEnvironment build(Scene scene, Vector2 viewSize) {
 		RenderEnvironment env = new RenderEnvironment(viewSize);
-		
+
 		// Resources
 		buildTextures(scene, env);
 		buildMeshes(scene, env);
@@ -39,10 +42,10 @@ public class RenderTreeBuilder {
 		// Render-able State Is Created Here
 		buildMaterials(scene, env);
 		buildTree(scene, env);
-		
+
 		return env;
 	}
-	
+
 	/**
 	 * Build a tree of RenderObjects that mirrors the tree of SceneObjects in <scene>.
 	 * 
@@ -56,12 +59,12 @@ public class RenderTreeBuilder {
 		// Clear Out Any Old Data
 		env.cameras.clear();
 		env.lights.clear();
-		
+
 		// Pass 1: Create The Render Object Mapping
 		HashMap<String, RenderObject> dict = new HashMap<>();
 		for(SceneObject so : scene.objects) {
 			RenderObject ro;
-			
+
 			if(so instanceof SceneCamera) {
 				ro = new RenderCamera(so, env.viewportSize);
 				env.cameras.add((RenderCamera)ro);
@@ -97,11 +100,11 @@ public class RenderTreeBuilder {
 		// Pass 3: Find A Root Node If It Exists
 		env.root = dict.get("World");
 		rippleTransformations(env);
-		
+
 		// Set Up Render State
 		env.linkObjectResources();
 	}
-	
+
 	/**
 	 * Compute the frame-to-world transformations for all objects in the hierarchy.
 	 * 
@@ -119,10 +122,49 @@ public class RenderTreeBuilder {
 	 * @param env  The environment containing the hierarchy to be processed.
 	 */
 	public static void rippleTransformations(RenderEnvironment env) {
-		// TODO#A3 SOLUTION START
+		// TODO#A3 SOLUTION START COMPLETED and TESTED
+
+
+		// call recursive helper method
+		rippleTransformationsHelper(env.root);
+		// update camera
+		for (RenderCamera camera: env.cameras) {
+			camera.updateCameraMatrix(env.viewportSize);
 		}
+
+	}
+
+
+	public static void rippleTransformationsHelper(RenderObject node) {
+
+		// variables
+		Matrix4 xform = null;
+		Matrix3 xformNormals = null;
+
+		// is this the right equals?
+		if (node.parent == null) {
+			xform = node.mWorldTransform;
+		} else {
+			xform = node.parent.mWorldTransform;
+		}
+		
+		// set mWorldTransform
+		node.sceneObject.transformation.mulAfter(xform, node.mWorldTransform);
+		
+		// update and set normals transformation
+		xformNormals = new Matrix3(node.mWorldTransform);
+		xformNormals.transpose();
+		xformNormals.invert();
+		node.mWorldTransformIT.set(xformNormals);
+
+
+		for (RenderObject child : node.children) {
+			rippleTransformationsHelper(child);	
+		}
+	}
+ 
 	// SOLUTION END
-	
+
 	/**
 	 * Make a RenderMaterial for each Material in <scene>.
 	 * @param scene  the Scene to read from
@@ -144,7 +186,7 @@ public class RenderTreeBuilder {
 			env.addMesh(m);
 		}
 	}
-	
+
 	public static void buildCubemaps(Scene scene, RenderEnvironment env) {
 		for(Cubemap c : scene.cubemaps) {
 			env.addCubemap(c);
