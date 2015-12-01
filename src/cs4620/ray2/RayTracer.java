@@ -345,6 +345,8 @@ public class RayTracer {
 				// TODO#A7 Implement supersampling for antialiasing.
 				// Each pixel should have (samples*samples) subpixels.
 				
+
+				
 				outImage.setPixelColor(pixelColor, x, y);
 
 			}

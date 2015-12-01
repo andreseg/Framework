@@ -1,3 +1,4 @@
+//normal map frag
 #version 120
 
 // You May Use The Following Functions As RenderMaterial Input
@@ -6,14 +7,75 @@
 // vec4 getSpecularColor(vec2 uv)
 
 // RenderObject Input
+uniform mat3 mWorldIT;
+uniform mat3 mWorld;
 
 // Lighting Information
+const int MAX_LIGHTS = 16;
+uniform int numLights;
+uniform vec3 lightIntensity[MAX_LIGHTS];
+uniform vec3 lightPosition[MAX_LIGHTS];
+uniform vec3 ambientLightIntensity;
 
 // Camera Information
+uniform vec3 worldCam;
+uniform float exposure;
 
 // Shading Information
+uniform float shininess;
+
+varying vec2 fUV;
+varying vec3 fN; // normal at the vertex
+varying vec4 worldPos; // vertex position in world coordinates
+
+varying vec3 bitangent; 
+varying vec3 tangent; 
+varying vec3 normal;
+
+
 
 void main() {
-  // TODO A4
-	gl_FragColor = vec4(1,1,1,1);
+
+    vec4 ncolor = getNormalColor(fUV);
+	vec3 ncolor3 = ncolor.xyz;
+
+	vec3 NewValue = (ncolor3 * 2) - 1;
+	
+	float nx = NewValue.x;
+	float ny = NewValue.y;
+	float nz = NewValue.z;
+
+	//convert normal from tangent space to world space
+//	mat3 BTN = mat3(vTangent, vBitangent, vNormal);
+//	mat3 BTN = mat3(vBitangent, vNormal, vTangent);
+//	mat3 BTN = mat3(vTangent, vNormal, vBitangent);
+//	mat3 BTNin = mWorldIT*BTN;
+
+	vec3 normalW = tangent * nx + bitangent * ny + normal * nz;
+
+	// interpolating normals will change the length of the normal, so renormalize the normal.
+	vec3 N = normalize(normalW);
+	vec3 V = normalize(worldCam - worldPos.xyz);
+	
+	vec4 finalColor = vec4(0.0, 0.0, 0.0, 0.0);
+
+	for (int i = 0; i < numLights; i++) {
+	  float r = length(lightPosition[i] - worldPos.xyz);
+	  vec3 L = normalize(lightPosition[i] - worldPos.xyz); 
+	  vec3 H = normalize(L + V);
+
+	  // calculate diffuse term
+	  vec4 Idiff = getDiffuseColor(fUV) * max(dot(N, L), 0.0);
+
+	  // calculate specular term
+	  vec4 Ispec = getSpecularColor(fUV) * pow(max(dot(N, H), 0.0), shininess);
+
+	  finalColor += vec4(lightIntensity[i], 0.0) * (Idiff + Ispec) / (r*r);
+	}
+
+	// calculate ambient term
+	vec4 Iamb = getDiffuseColor(fUV);
+	
+	gl_FragColor = (finalColor + vec4(ambientLightIntensity, 0.0) * Iamb) * exposure; 
+
 }
