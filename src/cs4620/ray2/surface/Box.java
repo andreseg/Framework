@@ -81,40 +81,64 @@ public class Box extends Surface {
 		
 		
 		int numVert = 8;
+		this.minBound = new Vector3d();
+		this.maxBound = new Vector3d();
+		this.averagePosition = new Vector3d();
 		
+		// you have to construct the box from the minPt and the maxPt
+		
+		Vector4d pt0 = new Vector4d(this.minPt.x, this.minPt.y, this.minPt.z, 1);
+		Vector4d pt1 = new Vector4d(this.maxPt.x, this.minPt.y, this.minPt.z, 1);
+		Vector4d pt2 = new Vector4d(this.maxPt.x, this.maxPt.y, this.minPt.z, 1);
+		Vector4d pt3 = new Vector4d(this.minPt.x, this.maxPt.y, this.minPt.z, 1);
+		Vector4d pt4 = new Vector4d(this.minPt.x, this.minPt.y, this.maxPt.z, 1);
+		Vector4d pt5 = new Vector4d(this.maxPt.x, this.minPt.y, this.maxPt.z, 1);
+		Vector4d pt6 = new Vector4d(this.maxPt.x, this.maxPt.y, this.maxPt.z, 1);
+		Vector4d pt7 = new Vector4d(this.minPt.x, this.maxPt.y, this.maxPt.z, 1);
+		
+		this.tMat.mul(pt0);
+		this.tMat.mul(pt1);
+		this.tMat.mul(pt2);
+		this.tMat.mul(pt3);
+		this.tMat.mul(pt4);
+		this.tMat.mul(pt5);
+		this.tMat.mul(pt6);
+		this.tMat.mul(pt7);
+		
+		Vector4d[] ptArray = { 
+				pt0, pt1, pt2, pt3, 
+				pt4, pt5, pt6, pt7
+			};
+
 		// Setup Base Case
-		double tempX = this.mesh.getPosition(0).x;
-		double tempY = this.mesh.getPosition(0).y;
-		double tempZ = this.mesh.getPosition(0).z;
-		// w is 1 for points
-		Vector4d temp4 = new Vector4d(tempX, tempY, tempZ, 1);
-		// Transform Vertices
-		this.tMat.mul(temp4);
+		double tempX = ptArray[0].x;
+		double tempY = ptArray[0].y;
+		double tempZ = ptArray[0].z;
 		
 		// Basic setup for minBound
-		double tempXmin = temp4.x;
-		double tempYmin = temp4.y;
-		double tempZmin = temp4.z;
+		double tempXmin = tempX;
+		double tempYmin = tempY;
+		double tempZmin = tempZ;
 		// Basic setup for maxBound
-		double tempXmax = temp4.x;
-		double tempYmax = temp4.y;
-		double tempZmax = temp4.z;
+		double tempXmax = tempX;
+		double tempYmax = tempY;
+		double tempZmax = tempZ;
 		// Basic setup for averagePosition
-		double tempXavg = temp4.x;
-		double tempYavg = temp4.y;
-		double tempZavg = temp4.z;
+		double tempXavg = tempX;
+		double tempYavg = tempY;
+		double tempZavg = tempZ;
+		
+		Vector4d temp4 = pt0;
 		
 		// Loop through remaining cases
 		for (int i = 1; i < numVert; i++){
-			temp4.setZero();
 
-			tempX = this.mesh.getPosition(i).x;
-			tempY = this.mesh.getPosition(i).y;
-			tempZ = this.mesh.getPosition(i).z;
+			tempX = ptArray[i].x;
+			tempY = ptArray[i].y;
+			tempZ = ptArray[i].z;
 			// w is 1 for points
 			temp4.set(tempX, tempY, tempZ, 1);
 			// Transform Vertices
-			this.tMat.mul(temp4);
 			
 			// if new x is less than minBound.x, store new minBound.x
 			if (temp4.x < tempXmin) {
@@ -140,9 +164,9 @@ public class Box extends Surface {
 				tempZmax = temp4.z;
 			}
 			
-			tempXavg = tempXavg + temp4.x;
-			tempYavg = tempYavg + temp4.y;
-			tempZavg = tempZavg + temp4.z;				
+			tempXavg = tempXavg + tempX;
+			tempYavg = tempYavg + tempY;
+			tempZavg = tempZavg + tempZ;			
 		}
 				
 		// Set minBound and maxBound 

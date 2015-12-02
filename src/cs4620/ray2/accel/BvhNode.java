@@ -83,7 +83,8 @@ public class BvhNode {
 	 * @return true if ray intersects the bounding box
 	 */
 	public boolean intersects(Ray ray) {
-		// TODO#A7: fill in this function.
+		// TODO#A7: NEEDS TESTING
+		//fill in this function.
 		
 		double maxx = this.maxBound.x;
 		double maxy = this.maxBound.y;

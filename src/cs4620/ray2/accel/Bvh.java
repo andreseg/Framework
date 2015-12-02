@@ -23,7 +23,7 @@ public class Bvh implements AccelStruct {
 	 *  See the subclass declaration below for details.
 	 */
 	static MyComparator cmp = new MyComparator();
-	
+
 	/** The root of the BVH tree. */
 	BvhNode root;
 
@@ -42,7 +42,7 @@ public class Bvh implements AccelStruct {
 	public boolean intersect(IntersectionRecord outRecord, Ray rayIn, boolean anyIntersection) {
 		return intersectHelper(root, outRecord, rayIn, anyIntersection);
 	}
-	
+
 	/**
 	 * A helper method to the main intersect method. It finds the intersection with
 	 * any of the surfaces under the given BVH node.  
@@ -55,14 +55,34 @@ public class Bvh implements AccelStruct {
 	 */
 	private boolean intersectHelper(BvhNode node, IntersectionRecord outRecord, Ray rayIn, boolean anyIntersection)
 	{
-		// TODO#A7: fill in this function.
+		// TODO#A7:NEEDS TESTING
+		//fill in this function.
 		// Hint: For a leaf node, use a normal linear search. Otherwise, search in the left and right children.
 		// Another hint: save time by checking if the ray intersects the node first before checking the childrens.
 
+
+		if(!node.intersects(rayIn)){
+			return false;
+		}
+
+		if(node.intersects(rayIn)){
+			if(node.isLeaf()){
+				for (int i = node.surfaceIndexStart; i < node.surfaceIndexEnd; i++) {
+					if(surfaces[i].intersect(outRecord, rayIn)){
+						return true;
+					}
+				}
+				return false;
+			}
+			if(intersectHelper(node.child[0], outRecord, rayIn, anyIntersection)){
+				return true;
+			};
+			if(intersectHelper(node.child[1], outRecord, rayIn, anyIntersection)){
+				return true;
+			};
+		}
 		
-//		anyIntersecti
-//		if (rayIn)
-        return false;
+		return false;
 	}
 
 
@@ -71,7 +91,7 @@ public class Bvh implements AccelStruct {
 		this.surfaces = surfaces;
 		root = createTree(0, surfaces.length);
 	}
-	
+
 	/**
 	 * Create a BVH [sub]tree.  This tree node will be responsible for storing
 	 * and processing surfaces[start] to surfaces[end-1]. If the range is small enough,
@@ -83,7 +103,8 @@ public class Bvh implements AccelStruct {
 	 * @param end The end index of surfaces
 	 */
 	private BvhNode createTree(int start, int end) {
-		// TODO#A7: fill in this function.
+		// TODO#A7:NEEDS TESTING
+		//fill in this function.
 
 		// ==== Step 1 ====
 		// Find out the BIG bounding box enclosing all the surfaces in the range [start, end)
@@ -102,9 +123,9 @@ public class Bvh implements AccelStruct {
 		int widestDim;
 		// Basic setup for Step 4
 		int midIndex = start + (range/2);
-//		Surface[] rangeSrfs = new Surface[range];
-//		Arrays.copyOfRange(this.surfaces, start, end);
-		
+		//		Surface[] rangeSrfs = new Surface[range];
+		//		Arrays.copyOfRange(this.surfaces, start, end);
+
 		// loop through surfaces, set min and max, and copy array of just range
 		for (int i = start; i < end; i++) {
 			// set min and max x values
@@ -126,7 +147,7 @@ public class Bvh implements AccelStruct {
 				maxB.set(2, this.surfaces[i].getMaxBound().z);
 			}
 		}
-        
+
 		// ==== Step 2 ====
 		// Check for the base case. 
 		// If the range [start, end) is small enough (e.g. less than or equal to 10), just return a new leaf node.
@@ -138,7 +159,7 @@ public class Bvh implements AccelStruct {
 		// ==== Step 3 ====
 		// Figure out the widest dimension (x or y or z).
 		// If x is the widest, set widestDim = 0. If y, set widestDim = 1. If z, set widestDim = 2.
-		
+
 		double xDim = maxB.x - minB.x;
 		double yDim = maxB.y - minB.y;
 		double zDim = maxB.z - minB.z;
@@ -153,22 +174,22 @@ public class Bvh implements AccelStruct {
 		// ==== Step 4 ====
 		// Sort surfaces according to the widest dimension.
 
-//		Surface[] sortedSrf = this.surfaces;
-//		Surface[] sortedSrf = new Surface[range];
-//		ArrayList<Surface> sortedSrf = new ArrayList<Surface>();
-//		for (int i = start; i < end; i++) {
-//			int j = 0;
-//			sortedSrf[j] = surfaces[i];
-//		}   surfaces[i].appendRenderableSurfaces(in);
-		
+		//		Surface[] sortedSrf = this.surfaces;
+		//		Surface[] sortedSrf = new Surface[range];
+		//		ArrayList<Surface> sortedSrf = new ArrayList<Surface>();
+		//		for (int i = start; i < end; i++) {
+		//			int j = 0;
+		//			sortedSrf[j] = surfaces[i];
+		//		}   surfaces[i].appendRenderableSurfaces(in);
+
 		Bvh.cmp.setIndex(widestDim);
 		Arrays.sort(this.surfaces, start, end, Bvh.cmp);
-		
+
 		// ==== Step 5 ====
 		// Recursively create left and right children.
-				
+
 		return new BvhNode(minB, maxB, createTree(start, midIndex), createTree(midIndex, end), start, end);
-//        return root;
+		//        return root;
 	}
 
 }
