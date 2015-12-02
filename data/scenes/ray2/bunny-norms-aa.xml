@@ -2,7 +2,8 @@
 <!--  Stanford Bunny mesh (500 triangles, with normals)
  -->
 <scene>
-  <samples>16</samples>
+<AccelStruct type= "NaiveAccelStruct"/> 
+  <samples>1</samples>
   <exposure>6.54321</exposure>
   <camera type="PerspectiveCamera">
     <viewPoint>4 6 8</viewPoint>
@@ -18,9 +19,12 @@
   <shader name="ground" type="Lambertian">
     <diffuseColor>.05 1 0.2</diffuseColor>
   </shader>
-  <shader name="bunny" type="Phong">
-    <diffuseColor>0.8 0.4 0.1</diffuseColor>
-    <specularColor>0.9 0.7 0.3</specularColor>
+  
+    <shader name="bunny" type="CookTorrance">
+    <diffuseColor>0.9 0.0 0.0</diffuseColor>
+    <specularColor>1.0 0.8 0.4</specularColor>
+	<roughness>0.9</roughness>
+	<refractiveIndex>1.4</refractiveIndex>
   </shader>
 
   <surface type="Mesh">

@@ -65,7 +65,16 @@ public abstract class Shader {
 	
 	protected double fresnel(Vector3d normal, Vector3d outgoing, double refractiveIndex) {
 		//TODO#A7 compute the fresnel term using the equation in the lecture
+		
+		//do we need to check whether we're entering or exiting a material?
+		//or does this equation take care of that check?
+		double n1 = 1.00;
+		double n2 = refractiveIndex;
+		
+		double cosT = normal.dot(outgoing);
+		double r0 = Math.pow(((n2-n1)/(n2+n1)), 2);
+		double rApprox = r0 + (1-r0)*(Math.pow((1-cosT),5));
 
-		return 0.0;
+		return rApprox;
 	}
 }

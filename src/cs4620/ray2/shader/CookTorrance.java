@@ -4,9 +4,12 @@ import cs4620.ray2.IntersectionRecord;
 import cs4620.ray2.Light;
 import cs4620.ray2.Ray;
 import cs4620.ray2.Scene;
+import edu.cornell.graphics.exr.ilmbaseto.Vector3;
 import egl.math.Color;
 import egl.math.Colord;
 import egl.math.Vector3d;
+import egl.math.Vector4;
+import egl.math.Vector4d;
 
 public class CookTorrance extends Shader {
 
@@ -27,7 +30,7 @@ public class CookTorrance extends Shader {
 	 */
 	protected double refractiveIndex;
 	public void setRefractiveIndex(double refractiveIndex) { this.refractiveIndex = refractiveIndex; }
-	
+
 	public CookTorrance() { }
 
 	/**
@@ -48,15 +51,56 @@ public class CookTorrance extends Shader {
 	 */
 	@Override
 	public void shade(Colord outIntensity, Scene scene, Ray ray, IntersectionRecord record, int depth) {
-		// TODO#A7 Fill in this function.
-		// 1) Loop through each light in the scene.
-		// 2) If the intersection point is shadowed, skip the calculation for the light.
-		//	  See Shader.java for a useful shadowing function.
-		// 3) Compute the incoming direction by subtracting
-		//    the intersection point from the light's position.
-		// 4) Compute the color of the point using the CookTorrance shading model. Add this value
-		//    to the output.
-	
-        
-    }
+
+		Vector3d incoming = new Vector3d();
+		Vector3d outgoing = new Vector3d();
+		outgoing.set(ray.origin).sub(record.location).normalize();
+
+		Colord color = new Colord();
+		Colord color1 = new Colord();
+		Ray shadowRay = new Ray();
+
+		outIntensity.setZero();
+		for(Light light : scene.getLights()) {
+			if(!isShadowed(scene, light, record, shadowRay)) {
+				incoming.set(light.getDirection(record.location)).normalize();
+
+				double dotProd = record.normal.dot(incoming);
+				if (dotProd <= 0)
+					continue;
+				else {
+					Vector3d halfVec = new Vector3d();
+					halfVec.set(incoming).add(outgoing).normalize();
+
+					double halfDotNormal = Math.max(0.0, halfVec.dot(record.normal));
+					double factor = Math.pow(halfDotNormal, 3);
+					double rSq = light.getRSq(record.location);
+
+					color.set((texture == null) ? diffuseColor :
+						texture.getTexColor(record.texCoords))
+						.mul(dotProd)
+						.addMultiple(factor, specularColor)
+						.mul(light.intensity)
+						.div(rSq);
+
+					double dgOverNvNl = .1;
+					double fresnel = fresnel(record.normal, outgoing, refractiveIndex);
+					
+					Colord kd = ((texture == null) ? diffuseColor :
+						texture.getTexColor(record.texCoords));
+					Colord ctShade = (Colord) specularColor.mul(fresnel).mul(dgOverNvNl).add(kd);
+					
+					//why id there no ambient term?? where is it?
+					color1.set(ctShade
+						.mul(dotProd)
+						.mul(light.intensity)
+						.div(rSq));
+
+					outIntensity.add(color1);
+				}
+			}
+		}
+
+	}
+
 }
