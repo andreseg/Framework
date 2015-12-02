@@ -1,6 +1,7 @@
 
 package cs4620.ray2.accel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -58,6 +59,9 @@ public class Bvh implements AccelStruct {
 		// Hint: For a leaf node, use a normal linear search. Otherwise, search in the left and right children.
 		// Another hint: save time by checking if the ray intersects the node first before checking the childrens.
 
+		
+//		anyIntersecti
+//		if (rayIn)
         return false;
 	}
 
@@ -86,26 +90,85 @@ public class Bvh implements AccelStruct {
 		// and store them in minB and maxB.
 		// Hint: To find the bounding box for each surface, use getMinBound() and getMaxBound() */
 
+
+		// Basic setup for Step 1
+		Vector3d minB = new Vector3d(); 
+		minB.set(this.surfaces[start].getMinBound());
+		Vector3d maxB = new Vector3d();
+		maxB.set(this.surfaces[start].getMaxBound());
+		// Basic setup for Step 2
+		int range = end - start;
+		// Basic setup for Step 3
+		int widestDim;
+		// Basic setup for Step 4
+		int midIndex = start + (range/2);
+//		Surface[] rangeSrfs = new Surface[range];
+//		Arrays.copyOfRange(this.surfaces, start, end);
+		
+		// loop through surfaces, set min and max, and copy array of just range
+		for (int i = start; i < end; i++) {
+			// set min and max x values
+			if (this.surfaces[i].getMinBound().x < minB.x){
+				minB.set(0, this.surfaces[i].getMinBound().x);
+			} else if (this.surfaces[i].getMaxBound().x > maxB.x) {
+				maxB.set(0, this.surfaces[i].getMaxBound().x);
+			}
+			// set min and max y values
+			if (this.surfaces[i].getMinBound().y < minB.y){
+				minB.set(1, this.surfaces[i].getMinBound().y);
+			} else if (this.surfaces[i].getMaxBound().y > maxB.y) {
+				maxB.set(1, this.surfaces[i].getMaxBound().y);
+			}
+			// set min and max z values
+			if (this.surfaces[i].getMinBound().z < minB.z){
+				minB.set(2, this.surfaces[i].getMinBound().z);
+			} else if (this.surfaces[i].getMaxBound().z > maxB.z) {
+				maxB.set(2, this.surfaces[i].getMaxBound().z);
+			}
+		}
         
 		// ==== Step 2 ====
 		// Check for the base case. 
 		// If the range [start, end) is small enough (e.g. less than or equal to 10), just return a new leaf node.
 
+		if (range <= 10){
+			return new BvhNode(minB, maxB, null, null, start, end);
+		}
 
 		// ==== Step 3 ====
 		// Figure out the widest dimension (x or y or z).
 		// If x is the widest, set widestDim = 0. If y, set widestDim = 1. If z, set widestDim = 2.
-
+		
+		double xDim = maxB.x - minB.x;
+		double yDim = maxB.y - minB.y;
+		double zDim = maxB.z - minB.z;
+		if (xDim >= yDim && xDim >= zDim){
+			widestDim = 0;
+		} else if (yDim >= xDim && yDim >= zDim){
+			widestDim = 1;
+		} else {
+			widestDim = 2;
+		}
 
 		// ==== Step 4 ====
 		// Sort surfaces according to the widest dimension.
 
-
+//		Surface[] sortedSrf = this.surfaces;
+//		Surface[] sortedSrf = new Surface[range];
+//		ArrayList<Surface> sortedSrf = new ArrayList<Surface>();
+//		for (int i = start; i < end; i++) {
+//			int j = 0;
+//			sortedSrf[j] = surfaces[i];
+//		}   surfaces[i].appendRenderableSurfaces(in);
+		
+		Bvh.cmp.setIndex(widestDim);
+		Arrays.sort(this.surfaces, start, end, Bvh.cmp);
+		
 		// ==== Step 5 ====
 		// Recursively create left and right children.
-
-        
-        return root;
+				
+		return new BvhNode(minB, maxB, createTree(start, midIndex), createTree(midIndex, end), start, end);
+//        return root;
 	}
 
 }

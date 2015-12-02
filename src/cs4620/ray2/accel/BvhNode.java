@@ -84,7 +84,32 @@ public class BvhNode {
 	 */
 	public boolean intersects(Ray ray) {
 		// TODO#A7: fill in this function.
-
-        return false;
+		
+		double maxx = this.maxBound.x;
+		double maxy = this.maxBound.y;
+		double maxz = this.maxBound.z;
+		
+		double minx = this.minBound.x;
+		double miny = this.minBound.y;
+		double minz = this.minBound.z;
+		
+// MISSING reverse ray direction 
+		double txmin = (minx - ray.origin.x)/ray.direction.x;
+		double txmax = (maxx - ray.origin.x)/ray.direction.x;
+		
+		double tymin = (miny - ray.origin.y)/ray.direction.y;
+		double tymax = (maxy - ray.origin.y)/ray.direction.y;
+		
+		double tzmin = (minz - ray.origin.z)/ray.direction.z;
+		double tzmax = (maxz - ray.origin.z)/ray.direction.z;
+		
+		double tmin = Math.min(Math.min(tymax, txmax), tzmax);
+		double tmax = Math.max(Math.max(tymin, txmin), tzmin);
+		
+		if(tmin > tmax){
+			return false;
+		} else {
+			return true;
+		}
 	}
 }
