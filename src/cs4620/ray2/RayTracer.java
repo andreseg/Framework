@@ -14,6 +14,7 @@ import cs4620.ray2.camera.Camera;
 import cs4620.ray2.shader.Shader;
 import cs4620.ray2.surface.Surface;
 import cs4620.ray2.viewer.QuickViewer;
+import egl.math.Color;
 import egl.math.Colord;
 
 public class RayTracer {
@@ -33,7 +34,7 @@ public class RayTracer {
 	 */
 	public static final int MAX_DEPTH = 12;
 
-	//Size of image sub-blocks
+	// Size of image sub-blocks
 	protected static int SUB_WIDTH = 32;
 	protected static int SUB_HEIGHT = 32;
 
@@ -43,10 +44,9 @@ public class RayTracer {
 	private static final BlockSpiral spiral = new BlockSpiral();
 
 	/**
-	 * Useful little display window that shows rendering progress.
-	 * The window actually take a bit of time to render itself, so
-	 * you can turn it on or off by setting the DISPLAY flag at the
-	 * top of the file.
+	 * Useful little display window that shows rendering progress. The window
+	 * actually take a bit of time to render itself, so you can turn it on or
+	 * off by setting the DISPLAY flag at the top of the file.
 	 */
 	private static QuickViewer viewer = null;
 
@@ -65,11 +65,10 @@ public class RayTracer {
 		public Path root;
 
 		public ScenePath(String r, String f) {
-			if(r == null) {
+			if (r == null) {
 				root = null;
 				file = Paths.get(f);
-			}
-			else  {
+			} else {
 				root = Paths.get(r);
 				file = root.resolve(f);
 			}
@@ -79,19 +78,24 @@ public class RayTracer {
 		public String getRoot() {
 			return root == null ? null : root.toAbsolutePath().toString();
 		}
+
 		public String getFile() {
 			return file.toAbsolutePath().toString();
 		}
 
 		/**
 		 * Attempt To Search The Scene And Program Workspace For A File
-		 * @param f The File To Search For
+		 * 
+		 * @param f
+		 *            The File To Search For
 		 * @return The Absolute File Path That Is Resolved (Or null)
 		 */
 		public String resolve(String f) {
 			Path p = root != null ? root.resolve(f) : null;
-			if(p == null) p = sceneRoot.resolve(f);
-			if(p == null) p = Paths.get(f);
+			if (p == null)
+				p = sceneRoot.resolve(f);
+			if (p == null)
+				p = Paths.get(f);
 			return p == null ? null : p.toAbsolutePath().toString();
 		}
 	}
@@ -120,12 +124,13 @@ public class RayTracer {
 		String currentRoot = directory;
 
 		// Use All The Arguments
-		for(int i = 0;i < args.length;i++) {
-			switch(args[i].toLowerCase()) {
+		for (int i = 0; i < args.length; i++) {
+			switch (args[i].toLowerCase()) {
 			case "-p":
 				// Use A Different Root Path
 				i++;
-				if(i < args.length) currentRoot = args[i];
+				if (i < args.length)
+					currentRoot = args[i];
 				break;
 			case "-pnull":
 				// Use The CWD
@@ -138,7 +143,7 @@ public class RayTracer {
 			}
 		}
 
-		if(pathArgs.size() < 1) {
+		if (pathArgs.size() < 1) {
 			// Attempt To Render All The Scenes
 			pathArgs.add(new ScenePath(currentRoot, "."));
 
@@ -148,39 +153,50 @@ public class RayTracer {
 		}
 
 		// Expand All The Possible Scenes
-		for(ScenePath p : pathArgs) {
+		for (ScenePath p : pathArgs) {
 			// Add All The Files In The
 			File f = p.file.toFile();
-			if(f.isDirectory()) {
-				for(File _f : f.listFiles()) {
+			if (f.isDirectory()) {
+				for (File _f : f.listFiles()) {
 					// We Only Want XML Files
-					if(!_f.getPath().endsWith(".xml")) continue;
+					if (!_f.getPath().endsWith(".xml"))
+						continue;
 
-					scenesToRender.add(new ScenePath(p.getRoot(), _f.toPath().toAbsolutePath().toString()));
+					scenesToRender.add(new ScenePath(p.getRoot(), _f.toPath()
+							.toAbsolutePath().toString()));
 				}
-			}
-			else {
+			} else {
 				// We Only Want XML Files
-				if(!f.getPath().endsWith(".xml")) continue;
+				if (!f.getPath().endsWith(".xml"))
+					continue;
 
 				// Just A Single Scene
 				scenesToRender.add(p);
 			}
 		}
 
-		System.out.println("Attempting To Render " + scenesToRender.size() + " Scene(s)");
+		System.out.println("Attempting To Render " + scenesToRender.size()
+				+ " Scene(s)");
 		RayTracer rayTracer = new RayTracer();
 		rayTracer.run(scenesToRender);
 	}
 
 	public static void printUsage() {
-		System.out.println("Usage: java RayTracer [-p path] [directory1 directory2 ... | file1 file2 ...]");
-		System.out.println("List each scene file you would like to render on the command line separated by spaces.");
-		System.out.println("You may also specify a directory, and all scene files in that directory will be rendered.");
-		System.out.println("By default, all files specified are prepended with a given path. Use the -p option to");
-		System.out.println("override this path. The path may be overriden multiple times or -pnull may be provided to set");
-		System.out.println("the path to the program's working directory. With no -p argument given, this path is: " + directory);
-		System.out.println("NB: the path is relative to the working directory of the application, which is normally the root of the CS4620 project.");
+		System.out
+				.println("Usage: java RayTracer [-p path] [directory1 directory2 ... | file1 file2 ...]");
+		System.out
+				.println("List each scene file you would like to render on the command line separated by spaces.");
+		System.out
+				.println("You may also specify a directory, and all scene files in that directory will be rendered.");
+		System.out
+				.println("By default, all files specified are prepended with a given path. Use the -p option to");
+		System.out
+				.println("override this path. The path may be overriden multiple times or -pnull may be provided to set");
+		System.out
+				.println("the path to the program's working directory. With no -p argument given, this path is: "
+						+ directory);
+		System.out
+				.println("NB: the path is relative to the working directory of the application, which is normally the root of the CS4620 project.");
 	}
 
 	/**
@@ -197,7 +213,8 @@ public class RayTracer {
 			sceneWorkspace = p;
 
 			// Parse the input file
-			Scene scene = (Scene) parser.parse(sceneWorkspace.getFile(), Scene.class);
+			Scene scene = (Scene) parser.parse(sceneWorkspace.getFile(),
+					Scene.class);
 
 			// Propagate transformation matrix through the tree hierarchy
 			scene.setTransform();
@@ -226,7 +243,8 @@ public class RayTracer {
 	/**
 	 * The renderImage method renders the entire scene.
 	 *
-	 * @param scene The scene to be rendered
+	 * @param scene
+	 *            The scene to be rendered
 	 */
 	public void renderImage(Scene scene) {
 
@@ -234,7 +252,7 @@ public class RayTracer {
 		Image image = scene.getImage();
 
 		// Setup viewer
-		if(DISPLAY)
+		if (DISPLAY)
 			viewer = QuickViewer.createImageViewer(image);
 
 		System.err.print("Starting render...");
@@ -243,30 +261,32 @@ public class RayTracer {
 		int width = image.getWidth();
 		int height = image.getHeight();
 
-		//Setup the sub-block spiral
+		// Setup the sub-block spiral
 		spiral.initSubblockSpiral(width, height);
 
 		// Timing counters
 		long startTime = System.currentTimeMillis();
 
-		//Loop over all blocks and render
+		// Loop over all blocks and render
 		int offsetX, offsetY, sizeX, sizeY;
-		for(int i = 0; i < spiral.totalSubblocks; i++) {
+		for (int i = 0; i < spiral.totalSubblocks; i++) {
 
-			//Increment the block counter
+			// Increment the block counter
 			spiral.incrementSublockSpiral();
-			offsetX = spiral.curSubX*SUB_WIDTH;
-			offsetY = spiral.curSubY*SUB_HEIGHT;
-			sizeX = Math.min(width-offsetX,SUB_WIDTH);
-			sizeY = Math.min(height-offsetY,SUB_HEIGHT);
+			offsetX = spiral.curSubX * SUB_WIDTH;
+			offsetY = spiral.curSubY * SUB_HEIGHT;
+			sizeX = Math.min(width - offsetX, SUB_WIDTH);
+			sizeY = Math.min(height - offsetY, SUB_HEIGHT);
 
 			renderBlock(scene, image, offsetX, offsetY, sizeX, sizeY);
 
-			//Update display
-			if(DISPLAY)
-				viewer.setImage(image, offsetX, offsetY, offsetX+sizeX, offsetY+sizeY);
+			// Update display
+			if (DISPLAY)
+				viewer.setImage(image, offsetX, offsetY, offsetX + sizeX,
+						offsetY + sizeY);
 
-			System.out.println("finished " + (i+1) + "/" + spiral.totalSubblocks + " blocks");
+			System.out.println("finished " + (i + 1) + "/"
+					+ spiral.totalSubblocks + " blocks");
 
 		}
 
@@ -276,28 +296,31 @@ public class RayTracer {
 				+ (totalTime / 1000.0) + " seconds");
 	}
 
-
 	/**
 	 * This method returns the color along a single ray in outColor.
 	 *
-	 * @param outColor output space
-	 * @param scene the scene
-	 * @param ray the ray to shade
+	 * @param outColor
+	 *            output space
+	 * @param scene
+	 *            the scene
+	 * @param ray
+	 *            the ray to shade
 	 */
 	public static void shadeRay(Colord outColor, Scene scene, Ray ray, int depth) {
 
 		outColor.setZero();
 
-		if(depth > MAX_DEPTH)
+		if (depth > MAX_DEPTH)
 			return;
 
 		IntersectionRecord intersectionRecord = new IntersectionRecord();
 
 		if (!scene.getFirstIntersection(intersectionRecord, ray)) {
-			if(scene.cubeMap != null)
+			if (scene.cubeMap != null)
 				scene.cubeMap.evaluate(ray.direction, outColor);
 			else
-				outColor.set(scene.getBackColor());
+				// outColor.set(scene.getBackColor());
+				outColor.set(Color.White);
 
 			return;
 		}
@@ -310,15 +333,25 @@ public class RayTracer {
 	/**
 	 * Render one block of the output image.
 	 *
-	 * @param scene The scene data
-	 * @param outImage the output image (write the output pixels here)
-	 * @param offsetX the startingX value of the block
-	 * @param offsetY the startingY value of the block
-	 * @param sizeX the width of the block
-	 * @param sizeY the height of the block
+	 * @param scene
+	 *            The scene data
+	 * @param outImage
+	 *            the output image (write the output pixels here)
+	 * @param offsetX
+	 *            the startingX value of the block
+	 * @param offsetY
+	 *            the startingY value of the block
+	 * @param sizeX
+	 *            the width of the block
+	 * @param sizeY
+	 *            the height of the block
 	 */
-	public static void renderBlock(Scene scene, Image outImage, int offsetX, int offsetY, int sizeX, int sizeY) {
+	public static void renderBlock(Scene scene, Image outImage, int offsetX,
+			int offsetY, int sizeX, int sizeY) {
 
+		// Get the output image
+//		Image image = scene.getImage();
+		Camera cam = scene.getCamera();
 
 		// Do some basic setup
 		Ray ray = new Ray();
@@ -330,54 +363,47 @@ public class RayTracer {
 		int height = outImage.getHeight();
 
 		int samples = scene.getSamples();
-		double sInv = 1.0/samples;
+		double sInv = 1.0 / samples;
 		double sInvD2 = sInv / 2;
 		double sInvSqr = sInv * sInv;
 		double exposure = scene.getExposure();
+		double a = 0;
+		double b = 0;
 
-		Camera cam = scene.getCamera();
+		for (int x = offsetX; x < (offsetX + sizeX); x++) {
+			for (int y = offsetY; y < (offsetY + sizeY); y++) {
 
-		for(int x = offsetX; x < (offsetX + sizeX); x++) {
-			for(int y = offsetY; y < (offsetY + sizeY); y++) {
-		
-		pixelColor.setZero();
-		
-//		for(int i = 0; i < samples; i++){
-//			for(int j = 0; j < samples; j++){	
-
-				double xSample = offsetX + (sizeX * sInv * x);
-				double ySample = offsetY + (sizeY * sInv * y);
-				
-//			}
+				pixelColor.setZero();
 
 				// TODO#A7 Implement supersampling for antialiasing.
-				// Each pixel should have (samples*samples) subpixels.
+				// Each pixel should have (samples*samples) subpixels
 
+				// sample the color by amount of samplesDim in x and in y
 				
-				
-				Colord colorsito = new Colord(255,0,0);
-				pixelColor.set(colorsito);
-				
+				for (int u = 0; u < samples; u++) {
+					for (int v = 0; v < samples; v++) {
+						
+						a = (x + (u * sInv) + sInvD2) / width;
+						b = (y + (v * sInv) + sInvD2) / height;
+						
+						cam.getRay(ray, a, b);
+						shadeRay(rayColor, scene, ray, 1);
+						
+						// sum the colors into pixelColor
+						pixelColor.add(rayColor);
+					}
+				}
+
+				// multiply color by exposure
+				pixelColor.mul(exposure);
+				// average color -> divide total in pixelColor by number of samples  
+				pixelColor.mul(sInvSqr);
+
+//				cam.getRay(ray, (x + 0.5) / width, (y + 0.5) / height);
+//				shadeRay(pixelColor, scene, ray, 1);
+
 				outImage.setPixelColor(pixelColor, x, y);
 			}
-
 		}
 	}
-	
-	/**
-	 * Check if int n is a square.
-	 * Return true if n = x^2, where x is an integer
-	 * else return fasle 
-	 * 
-	 **/
-	private static boolean isSquare(int n) {
-		double tempD = Math.sqrt((double)n);
-		int tempI = (int) tempD;
-		if (tempI == tempD){
-		return true;
-		} else {
-			return false;
-		}
-	}
-	
 }
