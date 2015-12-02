@@ -146,14 +146,15 @@ public class Box extends Surface {
 		}
 				
 		// Set minBound and maxBound 
-		minBound.set(tempXmin, tempYmin, tempZmin);
-		maxBound.set(tempXmax, tempYmax, tempZmax);
+// UNCLEAR - should we use this?
+		this.minBound.set(tempXmin, tempYmin, tempZmin);
+		this.maxBound.set(tempXmax, tempYmax, tempZmax);
         
 		// Set average position
 		tempXavg = tempXavg / numVert;
 		tempYavg = tempYavg / numVert;
 		tempZavg = tempZavg / numVert;
-		averagePosition.set(tempXavg, tempYavg, tempZavg);
+		this.averagePosition.set(tempXavg, tempYavg, tempZavg);
 	}
 
 	public boolean intersect(IntersectionRecord outRecord, Ray ray) {

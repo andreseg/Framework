@@ -3,6 +3,7 @@ package cs4620.ray2.surface;
 import cs4620.ray2.IntersectionRecord;
 import cs4620.ray2.Ray;
 import egl.math.Vector3d;
+import egl.math.Vector4d;
 
 /**
  * Represents a sphere as a center and a radius.
@@ -104,9 +105,15 @@ public class Sphere extends Surface {
 	}
 
 	public void computeBoundingBox() {
-		// TODO#A7: Compute the bounding box and store the result in
+		// TODO#A7: NEEDS TESTING Compute the bounding box and store the result in
 		// averagePosition, minBound, and maxBound.
-
+		
+		Vector4d center4 = new Vector4d(this.center.x, this.center.y, this.center.z, 1);
+		this.tMat.mul(center4);
+		
+		this.minBound = new Vector3d(center4.x - this.radius, center4.y - this.radius, center4.z - this.radius);
+		this.maxBound = new Vector3d(center4.x + this.radius, center4.y + this.radius, center4.z + this.radius);
+		this.averagePosition = new Vector3d(center4.x, center4.y, center4.z);
 
 	}
 

@@ -148,6 +148,10 @@ public class Cylinder extends Surface {
 		// TODO#A7: Compute the bounding box and store the result in
 		// averagePosition, minBound, and maxBound.
 		// Hint: The bounding box may be transformed by a transformation matrix.
+		
+		//compute bounding box for the untransformed cylinder
+		//transform that bounding box
+		//compute bounding box for that box
 
         
 	}
