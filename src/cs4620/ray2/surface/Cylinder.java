@@ -153,6 +153,89 @@ public class Cylinder extends Surface {
 		//transform that bounding box
 		//compute bounding box for that box
 
+		// Basic setup
+		this.minBound = new Vector3d();
+		this.maxBound = new Vector3d();
+		this.averagePosition = new Vector3d();
+		Vector3d min = new Vector3d(
+				this.center.x - this.radius, 
+				this.center.y - this.radius, 
+				this.center.z - this.height/2);
+		Vector3d max = new Vector3d(
+				this.center.x + this.radius, 
+				this.center.y + this.radius, 
+				this.center.z + this.height/2);
+
+		// Construct a bounding box in object space from the mins and the maxs
+		Vector3d pt0 = new Vector3d(min.x, min.y, min.z);
+		Vector3d pt1 = new Vector3d(max.x, min.y, min.z);
+		Vector3d pt2 = new Vector3d(min.x, max.y, min.z);
+		Vector3d pt3 = new Vector3d(min.x, min.y, max.z);
+		Vector3d pt4 = new Vector3d(max.x, max.y, min.z);
+		Vector3d pt5 = new Vector3d(max.x, min.y, max.z);
+		Vector3d pt6 = new Vector3d(min.x, max.y, max.z);
+		Vector3d pt7 = new Vector3d(max.x, max.y, max.z);
+		// Transform the eight points
+		this.tMat.mulPos(pt0);
+		this.tMat.mulPos(pt1);
+		this.tMat.mulPos(pt2);
+		this.tMat.mulPos(pt3);
+		this.tMat.mulPos(pt4);
+		this.tMat.mulPos(pt5);
+		this.tMat.mulPos(pt6);
+		this.tMat.mulPos(pt7);
+
+		Vector3d[] ptArray = { pt0, pt1, pt2, pt3, pt4, pt5, pt6, pt7 };
+
+		// Basic setup for minBound, maxBound, averagePosition
+		// Set everything to pt0
+		Vector3d tempCur = new Vector3d(pt0.x, pt0.y, pt0.z);
+		Vector3d tempMin = new Vector3d(pt0.x, pt0.y, pt0.z);
+		Vector3d tempMax = new Vector3d(pt0.x, pt0.y, pt0.z);
+		Vector3d tempAvg = new Vector3d(pt0.x, pt0.y, pt0.z);
+
+		// Loop through remaining cases
+		for (int i = 1; i < ptArray.length; i++) {
+
+			tempCur.set(ptArray[i].x, ptArray[i].y, ptArray[i].z);
+
+			// if current x is less than tempMin.x, replace tempMin.x
+			if (tempCur.x < tempMin.x) {
+				tempMin.x = tempCur.x;
+				// else if current x is more than tempMax.x, replace tempMax.x
+			} else if (tempCur.x > tempMax.x) {
+				tempMax.x = tempCur.x;
+			}
+
+			// if current y is less than tempMin.y, replace tempMin.y
+			if (tempCur.y < tempMin.y) {
+				tempMin.y = tempCur.y;
+				// else if current y is more than tempMax.y, replace tempMax.y
+			} else if (tempCur.y > tempMax.y) {
+				tempMax.y = tempCur.y;
+			}
+
+			// if current z is less than tempMin.z, replace tempMin.z
+			if (tempCur.z < tempMin.z) {
+				tempMin.z = tempCur.z;
+				// else if current z is more than tempMax.z, replace tempMax.z
+			} else if (tempCur.z > tempMax.z) {
+				tempMax.z = tempCur.z;
+			}
+
+			// add current x, y, and z to cumulative tempAvg
+			tempAvg.add(tempCur);
+
+		}
+
+		// Set minBound and maxBound
+		this.minBound.set(tempMin);
+		this.maxBound.set(tempMax);
+
+		// Average the cumulative tempAvg
+		tempAvg.mul(1 / ptArray.length);
+		// Set averagePosition
+		this.averagePosition.set(tempAvg);
         
 	}
 
