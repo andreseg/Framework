@@ -1,7 +1,6 @@
 package cs4620.ray2.surface;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.lwjgl.BufferUtils;
 
@@ -10,8 +9,7 @@ import cs4620.ray2.IntersectionRecord;
 import cs4620.ray2.Ray;
 import edu.cornell.graphics.exr.ilmbaseto.Vector3;
 import egl.math.Vector3d;
-import egl.math.Vector4;
-import egl.math.Vector4d;
+
 
 /**
  * A class that represents an Axis-Aligned box. When the scene is built, the Box
@@ -86,29 +84,25 @@ public class Box extends Surface {
 		this.averagePosition = new Vector3d();
 		
 		// you have to construct the box from the minPt and the maxPt
+		Vector3d pt0 = new Vector3d(this.minPt.x, this.minPt.y, this.minPt.z);
+		Vector3d pt1 = new Vector3d(this.maxPt.x, this.minPt.y, this.minPt.z);
+		Vector3d pt2 = new Vector3d(this.minPt.x, this.maxPt.y, this.minPt.z);
+		Vector3d pt3 = new Vector3d(this.minPt.x, this.minPt.y, this.maxPt.z);
+		Vector3d pt4 = new Vector3d(this.maxPt.x, this.maxPt.y, this.minPt.z);
+		Vector3d pt5 = new Vector3d(this.maxPt.x, this.minPt.y, this.maxPt.z);
+		Vector3d pt6 = new Vector3d(this.minPt.x, this.maxPt.y, this.maxPt.z);
+		Vector3d pt7 = new Vector3d(this.maxPt.x, this.maxPt.y, this.maxPt.z);
 		
-		Vector4d pt0 = new Vector4d(this.minPt.x, this.minPt.y, this.minPt.z, 1);
-		Vector4d pt1 = new Vector4d(this.maxPt.x, this.minPt.y, this.minPt.z, 1);
-		Vector4d pt2 = new Vector4d(this.maxPt.x, this.maxPt.y, this.minPt.z, 1);
-		Vector4d pt3 = new Vector4d(this.minPt.x, this.maxPt.y, this.minPt.z, 1);
-		Vector4d pt4 = new Vector4d(this.minPt.x, this.minPt.y, this.maxPt.z, 1);
-		Vector4d pt5 = new Vector4d(this.maxPt.x, this.minPt.y, this.maxPt.z, 1);
-		Vector4d pt6 = new Vector4d(this.maxPt.x, this.maxPt.y, this.maxPt.z, 1);
-		Vector4d pt7 = new Vector4d(this.minPt.x, this.maxPt.y, this.maxPt.z, 1);
+		this.tMat.mulPos(pt0);
+		this.tMat.mulPos(pt1);
+		this.tMat.mulPos(pt2);
+		this.tMat.mulPos(pt3);
+		this.tMat.mulPos(pt4);
+		this.tMat.mulPos(pt5);
+		this.tMat.mulPos(pt6);
+		this.tMat.mulPos(pt7);
 		
-		this.tMat.mul(pt0);
-		this.tMat.mul(pt1);
-		this.tMat.mul(pt2);
-		this.tMat.mul(pt3);
-		this.tMat.mul(pt4);
-		this.tMat.mul(pt5);
-		this.tMat.mul(pt6);
-		this.tMat.mul(pt7);
-		
-		Vector4d[] ptArray = { 
-				pt0, pt1, pt2, pt3, 
-				pt4, pt5, pt6, pt7
-			};
+		Vector3d[] ptArray = { pt0, pt1, pt2, pt3, pt4, pt5, pt6, pt7 };
 
 		// Setup Base Case
 		double tempX = ptArray[0].x;
@@ -128,7 +122,7 @@ public class Box extends Surface {
 		double tempYavg = tempY;
 		double tempZavg = tempZ;
 		
-		Vector4d temp4 = pt0;
+		Vector3d temp3 = pt0;
 		
 		// Loop through remaining cases
 		for (int i = 1; i < numVert; i++){
@@ -137,31 +131,31 @@ public class Box extends Surface {
 			tempY = ptArray[i].y;
 			tempZ = ptArray[i].z;
 			// w is 1 for points
-			temp4.set(tempX, tempY, tempZ, 1);
+			temp3.set(tempX, tempY, tempZ);
 			// Transform Vertices
 			
 			// if new x is less than minBound.x, store new minBound.x
-			if (temp4.x < tempXmin) {
-				tempXmin = temp4.x;
+			if (temp3.x < tempXmin) {
+				tempXmin = temp3.x;
 			// else if new x is more than maxBound.x, store new maxBound.x
-			} else if (temp4.x > tempXmax) {
-				tempXmax = temp4.x;
+			} else if (temp3.x > tempXmax) {
+				tempXmax = temp3.x;
 			}
 
 			// if new y is less than minBound.y, store new minBound.y
-			if (temp4.y < tempYmin) {
-				tempYmin = temp4.y;
+			if (temp3.y < tempYmin) {
+				tempYmin = temp3.y;
 			// else if new y is more than maxBound.y, store new maxBound.y
-			} else if (temp4.y > tempYmax) {
-				tempYmax = temp4.y;
+			} else if (temp3.y > tempYmax) {
+				tempYmax = temp3.y;
 			}
 
 			// if new z is less than minBound.z, store new minBound.z
-			if (temp4.z < tempZmin) {
-				tempZmin = temp4.z;
+			if (temp3.z < tempZmin) {
+				tempZmin = temp3.z;
 			// else if new x is more than maxBound.x, store new maxBound.x
-			} else if (temp4.z > tempZmax) {
-				tempZmax = temp4.z;
+			} else if (temp3.z > tempZmax) {
+				tempZmax = temp3.z;
 			}
 			
 			tempXavg = tempXavg + tempX;
@@ -170,7 +164,6 @@ public class Box extends Surface {
 		}
 				
 		// Set minBound and maxBound 
-// UNCLEAR - should we use this?
 		this.minBound.set(tempXmin, tempYmin, tempZmin);
 		this.maxBound.set(tempXmax, tempYmax, tempZmax);
         
