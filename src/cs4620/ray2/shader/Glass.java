@@ -58,8 +58,10 @@ public class Glass extends Shader {
 
 		//get the direction of the incoming view ray
 		Vector3d d = ray.direction;
-
+		
 		//find dot product between the 2 vectors
+		n.normalize();
+		d.normalize();
 		double nDotD = n.dot(d);
 
 		//get the reflected ray
@@ -68,17 +70,24 @@ public class Glass extends Shader {
 		//if the dot product is less than zero 
 		double nt; //refraction index of second (i.e. exit) material
 		double n0; //refractive index of first material
+		
+		//increment depth
+		depth++;
 
 		if(nDotD < 0){
 			//then the ray is traveling out from glass to air
 			nt = 1.0;
-			n0 = refractiveIndex;
+//			n0 = refractiveIndex;
+			n0 = 1.5;
+
 
 		} else {
 			//if the dot product is greater than zero
 			//then the ray is traveling in from air to material
-			nt = refractiveIndex;
+//			nt = refractiveIndex;
+			nt = 1.5;
 			n0 = 1.0;
+			n.negate();
 
 		}
 
@@ -86,14 +95,12 @@ public class Glass extends Shader {
 
 		//if the number under the square root (tiRef) is negative then total internal reflection occurs
 		//nt is the refractive index of the material you're traveling in to
-		double tiRef = 1 - (((Math.pow(n0,2)*(1-Math.pow(nDotD,2)))/Math.pow(nt,2)));
+		double tiRef = 1 - (
+				(n0*n0*(1 - (nDotD*nDotD)))/
+				(nt*nt));
 
 		//if total internal reflection occurs return the color in out intensity
 		if(tiRef  < 0){
-			//reflected view Ray  ??HOW 
-			double r0 = Math.pow((n0-1),2)/Math.pow((n0+1),2);
-			double rTheta = r0+(1-r0)*Math.pow((1-nDotD),5);
-
 			Ray rRay = new Ray(record.location, r);
 			rRay.makeOffsetRay();
 			RayTracer.shadeRay(outIntensity, scene, rRay, depth);
@@ -107,27 +114,29 @@ public class Glass extends Shader {
 			Ray rRay = new Ray(record.location, r);
 			rRay.makeOffsetRay();
 			RayTracer.shadeRay(reflColor, scene, rRay, depth);
-
+			
 			// compute the refracted ray
-			Vector3d t = (d.sub(n.mul((d.dot(n)))).mul(n0).div(nt)).sub(n.mul((Math.sqrt(tiRef))));
-			Ray tRay = new Ray(record.location, t);
+			// -----MATH------
+			double DdotN = d.dot(n);
+			Vector3d NDdotN = n.clone().mul(DdotN);
+			Vector3d DminusNDdotN = d.clone().sub(NDdotN);
+			DminusNDdotN.mul(n0);
+			DminusNDdotN.div(nt);
+			Vector3d N_sqrt_tiref = n.clone().mul(Math.sqrt(tiRef));
+			DminusNDdotN.sub(N_sqrt_tiref);
+			// -----MATH------
+			
+			//call raytracer shaderay on the reflected ray
+			Ray tRay = new Ray(record.location, DminusNDdotN);
 			tRay.makeOffsetRay();
-
-			//call raytracer shaderay on the refracted ray
 			RayTracer.shadeRay(refrColor, scene, tRay, depth);
-			
-			//testing the t ray value
-			double testcolorx = t.x;
-			double testcolory = t.y;
-			double testcolorz = t.z;
-			Colord red = new Colord(testcolorx, testcolory, testcolorz);
-			
-			//testing adding refracted and reflected color
-			//cumColor.add(red);
-			//cumColor.add(reflColor);
+
+			//add the colors from the rays
+			reflColor.mul(.5);
 			refrColor.mul(.5);
+//			cumColor.add(reflColor);
 			cumColor.add(refrColor);
-			outIntensity.set(red);
+			outIntensity.set(cumColor);
 		}
 
 
