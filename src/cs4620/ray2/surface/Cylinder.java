@@ -153,19 +153,30 @@ public class Cylinder extends Surface {
 		//transform that bounding box
 		//compute bounding box for that box
 
-		// Basic setup
+		// Instatiate minBound, maxBound, averagePosition
 		this.minBound = new Vector3d();
 		this.maxBound = new Vector3d();
 		this.averagePosition = new Vector3d();
+		// Basic setup
+		double centerX = this.center.x;
+		double centerY = this.center.y;
+		double centerZ = this.center.z;
+		double rad = this.radius;
+		double halfH = this.height/2;
 		Vector3d min = new Vector3d(
-				this.center.x - this.radius, 
-				this.center.y - this.radius, 
-				this.center.z - this.height/2);
+				centerX - rad, 
+				centerY - rad, 
+				centerZ - halfH);
 		Vector3d max = new Vector3d(
-				this.center.x + this.radius, 
-				this.center.y + this.radius, 
-				this.center.z + this.height/2);
-
+				centerX + rad, 
+				centerY + rad, 
+				centerZ + halfH);
+		
+		// Transform and set averagePosition
+		Vector3d c = new Vector3d(centerX, centerY, centerZ);
+		this.tMat.mulPos(c);
+		this.averagePosition.set(c);
+		
 		// Construct a bounding box in object space from the mins and the maxs
 		Vector3d pt0 = new Vector3d(min.x, min.y, min.z);
 		Vector3d pt1 = new Vector3d(max.x, min.y, min.z);
@@ -192,7 +203,7 @@ public class Cylinder extends Surface {
 		Vector3d tempCur = new Vector3d(pt0.x, pt0.y, pt0.z);
 		Vector3d tempMin = new Vector3d(pt0.x, pt0.y, pt0.z);
 		Vector3d tempMax = new Vector3d(pt0.x, pt0.y, pt0.z);
-		Vector3d tempAvg = new Vector3d(pt0.x, pt0.y, pt0.z);
+//		Vector3d tempAvg = new Vector3d(pt0.x, pt0.y, pt0.z);
 
 		// Loop through remaining cases
 		for (int i = 1; i < ptArray.length; i++) {
@@ -223,8 +234,8 @@ public class Cylinder extends Surface {
 				tempMax.z = tempCur.z;
 			}
 
-			// add current x, y, and z to cumulative tempAvg
-			tempAvg.add(tempCur);
+//			// add current x, y, and z to cumulative tempAvg
+//			tempAvg.add(tempCur);
 
 		}
 
@@ -232,10 +243,10 @@ public class Cylinder extends Surface {
 		this.minBound.set(tempMin);
 		this.maxBound.set(tempMax);
 
-		// Average the cumulative tempAvg
-		tempAvg.mul(1 / ptArray.length);
-		// Set averagePosition
-		this.averagePosition.set(tempAvg);
+//		// Average the cumulative tempAvg
+//		tempAvg.mul(1 / ptArray.length);
+//		// Set averagePosition
+//		this.averagePosition.set(tempAvg);
         
 	}
 

@@ -1,21 +1,14 @@
 MISSING:
 
--Sphere:
-	-doesn't work for non-uniform scale
--Cylinder:
-	-should we make a bounding box in object space then transform?
 -BvhNode:
 	-intersects, ray direction
 
 BROKEN:
 
--Box:
-	-null pointer exception
+-
 
 UNCLEAR:
 
--Box + Triangle:
-	-use this to set minBound, maxBound, averagePosition
 -Bvh:
 	-Vector3.set(...);
 		-used with min.set(...);

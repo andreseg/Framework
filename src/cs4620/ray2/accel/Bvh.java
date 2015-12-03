@@ -7,6 +7,7 @@ import java.util.Comparator;
 
 import cs4620.ray2.IntersectionRecord;
 import cs4620.ray2.Ray;
+import cs4620.ray2.RayRecord;
 import cs4620.ray2.surface.Surface;
 import egl.math.Vector3d;
 
@@ -60,36 +61,55 @@ public class Bvh implements AccelStruct {
 		// Hint: For a leaf node, use a normal linear search. Otherwise, search in the left and right children.
 		// Another hint: save time by checking if the ray intersects the node first before checking the childrens.
 
-//		if(!node.intersects(rayIn)){
-//			return false;
-//		}
-
-<<<<<<< HEAD
 		if(!node.intersects(rayIn)){
 			return false;
 		}
+		
+		// make a copy of rayIn
+		Ray newRay = new Ray(rayIn.origin, rayIn.direction);
+		// create new InterestectionRecord
+		IntersectionRecord newOutRecord = new IntersectionRecord();
+		// make newOutRecord a copy of OutRecord ??
+		newOutRecord.set(outRecord);
 
-		//dont have to check twice
-		if(node.intersects(rayIn)){
+		if(node.intersects(newRay)){
+			
+			// Check if leaf
 			if(node.isLeaf()){
 				for (int i = node.surfaceIndexStart; i < node.surfaceIndexEnd; i++) {
+					// supposed to pass a fresh/new outRecord/IntersectRecord and copied ray to the leaf of object intersect function 
+
+// Nick, I don't know what else to try.
+// it sort of works when you use the old outRecord and rayIn
+// with the copies I made, nothing works.
+// in any configuration...
+// i tried to comment as clearly as possible 
+// and left a few of the options that didn't work for me with the Ctrl+/ comments
+// not sure what else to try...
+					
+//					if(surfaces[i].intersect(newOutRecord, newRay)){
 					if(surfaces[i].intersect(outRecord, rayIn)){
-						//need to fill out outrecord
-=======
-		if (node.intersects(rayIn)) {
-			if (node.isLeaf()) {
-				for (int i = node.surfaceIndexStart; i < node.surfaceIndexEnd; i++) {
-					if (surfaces[i].intersect(outRecord, rayIn)) {
->>>>>>> origin/master
+						// check IntersectionRecord at each iteration + get returned t value ??
+						if (newOutRecord.t < outRecord.t){
+							outRecord.t = newOutRecord.t;
+							// decrease t value of copied ray (newRay) to be the t value of the outrecord you just got back 
+						}
 						return true;
 					}
 				}
 				return false;
 			}
+			
+			// Check if node
+			// then left subtree.. supposed to create a new IntersectionRecord.. and copy ray
+//			if (intersectHelper(node.child[0], newOutRecord, newRay = new Ray(rayIn.origin, rayIn.direction), anyIntersection)) {
+//			if (intersectHelper(node.child[0], newOutRecord, newRay, anyIntersection)) {
 			if (intersectHelper(node.child[0], outRecord, rayIn, anyIntersection)) {
 				return true;
 			}
 			;
+			// and then right subtree..
+//			if (intersectHelper(node.child[1], newOutRecord, newRay, anyIntersection)) {
 			if (intersectHelper(node.child[1], outRecord, rayIn, anyIntersection)) {
 				return true;
 			}
