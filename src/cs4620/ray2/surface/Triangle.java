@@ -144,16 +144,9 @@ public class Triangle extends Surface {
 		Vector3d v1 = owner.getPosition(index.y);
 		Vector3d v2 = owner.getPosition(index.z);
 		
-//		Vector4d v0_4 = new Vector4d(v0.x, v0.y, v0.z, 1);
-//		Vector4d v1_4 = new Vector4d(v1.x, v1.y, v1.z, 1);
-//		Vector4d v2_4 = new Vector4d(v2.x, v2.y, v2.z, 1);
-		
 		this.tMat.mulPos(v0);
 		this.tMat.mulPos(v1);
 		this.tMat.mulPos(v2);
-//		this.tMat.mul(v0_4);
-//		this.tMat.mul(v1_4);
-//		this.tMat.mul(v2_4);
 		
 		this.minBound.set(
 				Math.min(Math.min(v0.x, v1.x),v2.x),
@@ -166,7 +159,6 @@ public class Triangle extends Surface {
 				Math.max(Math.max(v0.z, v1.z),v2.z));
 		
 		(v0.add(v1)).add(v2);
-//		v0_4.set(3, (double) 1);
 		Vector3d avgPos = new Vector3d(v0.x, v0.y, v0.z);
 		avgPos.div(3);
 		

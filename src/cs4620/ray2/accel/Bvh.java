@@ -65,10 +65,12 @@ public class Bvh implements AccelStruct {
 			return false;
 		}
 
+		//dont have to check twice
 		if(node.intersects(rayIn)){
 			if(node.isLeaf()){
 				for (int i = node.surfaceIndexStart; i < node.surfaceIndexEnd; i++) {
 					if(surfaces[i].intersect(outRecord, rayIn)){
+						//need to fill out outrecord
 						return true;
 					}
 				}

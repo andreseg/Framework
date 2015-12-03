@@ -2,6 +2,7 @@
 <!--  A blue box sitting on a floor.
  -->
 <scene>
+<AccelStruct type= "NaiveAccelStruct"/> 
   <camera type="PerspectiveCamera">
     <viewPoint>0 25 0</viewPoint>
     <viewDir>0 -1 0</viewDir>
