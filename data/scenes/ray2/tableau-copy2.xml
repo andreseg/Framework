@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<scene>
+  <samples>1</samples>
+  <camera type="PerspectiveCamera">
+    <viewPoint>4 6 8</viewPoint>
+    <viewDir>-4 -6 -8</viewDir>
+    <viewUp>0 1 0</viewUp>
+    <projDistance>2</projDistance>
+    <viewWidth>0.5</viewWidth>
+    <viewHeight>0.5</viewHeight>
+  </camera>
+  <image>
+    450 450
+  </image>
+  
+      <shader name="glazed" type="CookTorrance">
+    <diffuseColor>0.5 0.5 0.5</diffuseColor>
+    <specularColor>1 1 1</specularColor>
+	<roughness>0.8</roughness>
+	<refractiveIndex>1.5</refractiveIndex>
+  </shader>
+  
+   <surface type="Mesh">
+    <shader ref="glazed" />
+    <data>../../meshes/bunnyNV.obj</data>
+  </surface>
+  
+  <light type="PointLight">
+  	<position>3 10 0</position>
+  	<intensity>40 40 40</intensity>
+  </light>
+  <light type="PointLight">
+  	<position>15 2 0</position>
+  	<intensity>25 25 25</intensity>
+  </light>
+  <light type="PointLight">
+  	<position>0 1 15</position>
+  	<intensity>15 15 15</intensity>
+  </light>
+  
+</scene>

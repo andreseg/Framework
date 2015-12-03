@@ -11,6 +11,7 @@ import egl.math.Vector3d;
 import egl.math.Vector4;
 import egl.math.Vector4d;
 
+
 public class CookTorrance extends Shader {
 
 	/** The color of the diffuse reflection. */
@@ -66,13 +67,17 @@ public class CookTorrance extends Shader {
 				incoming.set(light.getDirection(record.location)).normalize();
 
 				double dotProd = record.normal.dot(incoming);
+				
 				if (dotProd <= 0)
 					continue;
 				else {
+
 					Vector3d halfVec = new Vector3d();
 					halfVec.set(incoming).add(outgoing).normalize();
 
+					double ndotv = record.normal.dot(outgoing);
 					double halfDotNormal = Math.max(0.0, halfVec.dot(record.normal));
+					double halfDotView = Math.max(0.0, halfVec.dot(outgoing));
 					double factor = Math.pow(halfDotNormal, 3);
 					double rSq = light.getRSq(record.location);
 
@@ -82,13 +87,31 @@ public class CookTorrance extends Shader {
 						.addMultiple(factor, specularColor)
 						.mul(light.intensity)
 						.div(rSq);
+					
+					double m = roughness;
 
-					double dgOverNvNl = .1;
+					double D1 = 1/(Math.pow(m,2)*Math.pow(halfDotNormal,4));
+					double D2 = Math.pow(halfDotNormal,2)-1;
+					double D3 = 1/(Math.pow(m,2)*Math.pow(halfDotNormal,2));
+					double D = (D1*Math.exp(D2*D3));
+					
+					// calculate Geometric Attenuation; G = Geometric Attenuation
+					double Gb = 2*(halfDotNormal)*(ndotv)/(halfDotView);
+				    double Ga = Math.min(1.0,Gb);
+					double Gc = (2*(halfDotNormal)*(dotProd))/(halfDotView);
+					double G = Math.min(Ga,Gc);
+					
+					double ndotvndotl = dotProd*ndotv;
+					
+					double thetah = Math.acos(halfDotNormal);
+					
+					double dgOverNvNl = ((D*thetah*G)/(ndotvndotl)); // d  is the problem term
+
 					double fresnel = fresnel(record.normal, outgoing, refractiveIndex);
 					
 					Colord kd = ((texture == null) ? diffuseColor :
 						texture.getTexColor(record.texCoords));
-					Colord ctShade = (Colord) specularColor.mul(fresnel).mul(dgOverNvNl).add(kd);
+					Vector3d ctShade = specularColor.clone().mul(fresnel).mul(dgOverNvNl).add(kd);
 					
 					//why id there no ambient term?? where is it?
 					color1.set(ctShade

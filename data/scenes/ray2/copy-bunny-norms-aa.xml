@@ -16,10 +16,7 @@
   <image>
     450 450
   </image>
-  <shader name="ground" type="Lambertian">
-    <diffuseColor>.05 1 0.2</diffuseColor>
-  </shader>
-  
+
     <shader name="bunny" type="CookTorrance">
     <diffuseColor>0.9 0.0 0.0</diffuseColor>
     <specularColor>1.0 0.8 0.4</specularColor>
@@ -31,15 +28,16 @@
     <shader ref="bunny" />
     <data>../../meshes/bunnyNV.obj</data>
   </surface>
-  <surface type="Box">
-  	<minpt>-3 -2 -3</minpt>
-  	<maxpt>3 -0.9 3</maxpt>
-  	<shader ref="ground" />
-  </surface>
   
   <light type="PointLight">
   	<position>3 10 5</position>
   	<intensity>9 9 9</intensity>
   </light>  
+  
+    <cubemap>
+    <filename>data/textures/cubemaps/kitchen_cross.pfm</filename>
+	<scaleFactor>0.005</scaleFactor>
+  </cubemap>
+  
 </scene>
 

@@ -45,12 +45,19 @@ public class Glass extends Shader {
 	public void shade(Colord outIntensity, Scene scene, Ray ray, IntersectionRecord record, int depth) {
 		// TODO#A7: fill in this function.
         // 1) Determine whether the ray is coming from the inside of the surface or the outside.
+		
+		// dot product between normal and the ray
+			// if negative from inside
+			// if positive from outside
+		
         // 2) Determine whether total internal reflection occurs.
+		
+		// 
+		
         // 3) Compute the reflected ray and refracted ray (if total internal reflection does not occur)
         //    using Snell's law and call RayTracer.shadeRay on them to shade them
-		
+	
+		// 
         
 	}
-	
-
 }

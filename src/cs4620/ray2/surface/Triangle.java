@@ -144,26 +144,30 @@ public class Triangle extends Surface {
 		Vector3d v1 = owner.getPosition(index.y);
 		Vector3d v2 = owner.getPosition(index.z);
 		
-		Vector4d v0_4 = new Vector4d(v0.x, v0.y, v0.z, 1);
-		Vector4d v1_4 = new Vector4d(v1.x, v1.y, v1.z, 1);
-		Vector4d v2_4 = new Vector4d(v2.x, v2.y, v2.z, 1);
+//		Vector4d v0_4 = new Vector4d(v0.x, v0.y, v0.z, 1);
+//		Vector4d v1_4 = new Vector4d(v1.x, v1.y, v1.z, 1);
+//		Vector4d v2_4 = new Vector4d(v2.x, v2.y, v2.z, 1);
 		
-		this.tMat.mul(v0_4);
-		this.tMat.mul(v1_4);
-		this.tMat.mul(v2_4);
+		this.tMat.mulPos(v0);
+		this.tMat.mulPos(v1);
+		this.tMat.mulPos(v2);
+//		this.tMat.mul(v0_4);
+//		this.tMat.mul(v1_4);
+//		this.tMat.mul(v2_4);
 		
 		this.minBound.set(
-				Math.min(Math.min(v0_4.x, v1_4.x),v2_4.x),
-				Math.min(Math.min(v0_4.y, v1_4.y),v2_4.y),
-				Math.min(Math.min(v0_4.z, v1_4.z),v2_4.z));
+				Math.min(Math.min(v0.x, v1.x),v2.x),
+				Math.min(Math.min(v0.y, v1.y),v2.y),
+				Math.min(Math.min(v0.z, v1.z),v2.z));
 		
 		this.maxBound.set(
-				Math.max(Math.max(v0_4.x, v1_4.x),v2_4.x),
-				Math.max(Math.max(v0_4.y, v1_4.y),v2_4.y),
-				Math.max(Math.max(v0_4.z, v1_4.z),v2_4.z));
+				Math.max(Math.max(v0.x, v1.x),v2.x),
+				Math.max(Math.max(v0.y, v1.y),v2.y),
+				Math.max(Math.max(v0.z, v1.z),v2.z));
 		
-		(v0_4.add(v1_4)).add(v2_4);
-		Vector3d avgPos = new Vector3d(v0_4.x, v0_4.y, v0_4.z);
+		(v0.add(v1)).add(v2);
+//		v0_4.set(3, (double) 1);
+		Vector3d avgPos = new Vector3d(v0.x, v0.y, v0.z);
 		avgPos.div(3);
 		
 		this.averagePosition.set(avgPos);
